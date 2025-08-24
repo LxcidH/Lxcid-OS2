@@ -1,6 +1,8 @@
 #include "multiboot.h"
 #include <stdint.h>
 #include "../font/font.h"
+#include "../gdt/gdt.h"
+
 volatile uint32_t* framebuffer;
 uint32_t screen_width;
 uint32_t screen_height;
@@ -131,6 +133,7 @@ void puts(int x, int y, char *str, uint32_t color) {
 }
 
 void kmain(multiboot_info_t *mbi) {
+    gdt_init();
     // First, check if the bootloader provided valid framebuffer information.
     if (!(mbi->flags & (1 << 12))) {
         // If not, we can't draw, so halt.
@@ -143,15 +146,6 @@ void kmain(multiboot_info_t *mbi) {
     // Define the color white (0x00RRGGBB).
     uint32_t white = 0x00FFFFFF;
     uint32_t red = 0x00FF0000;
-
-    for (int i = 0; i < 10; i++) {
-        for (int j = 0; j < 10; j++) {
-            put_pixel(i, j, red);
-        }
-    }
-
-    draw_filled_rect(100, 100, 150, 50, red);
-    draw_line(0, 0, 100, 100, red);
 
     puts(400, 400, "Hello, World!", white);
     while(1) {
